@@ -3,21 +3,61 @@
 
 char go = 1;  //ends program when flagged as "10"
 
+const int redLED = 0;
+const int greenLED = 1;
+const int blueLED = 2;
+
+int led1State = 0;
+int led2State = 0;
+int led3State = 0;
+
+const int btn1 = 3;
+const int btn2 = 4;
+const int btn3 = 5;
+
 File myFile;
 const int chipSelect = BUILTIN_SDCARD;
 
+//set up serial connection, SD card, led pins, and button pins
+void setup(){
+  Serial.begin(9600);
+  Serial.print("Initializing SD card...");
+  if (!SD.begin(chipSelect)) {
+    Serial.println("initialization failed!");
+    return;
+  }
+  Serial.println("initialization done.");
+  
+  pinMode(redLED, OUTPUT);
+  pinMode(greenLED, OUTPUT);
+  pinMode(blueLED, OUTPUT);
+
+  pinMode(btn1, INPUT);
+  pinMode(btn2, INPUT);
+  pinMode(btn3, INPUT);
+}
+
+/* Recursive method that reads each character of text file in SD card one at a time
+ * p (press)= 
+ * v (value)= value passed along recursively. (key number)(delay)(led)
+ * r (read)= current character to be analyzed
+ */
 
 void readKeyPress (int p, int v){
-  
     char r = myFile.read();
     if (r == 'e') {
         go = 0;
     } else if (r == '\r'){
         if ((p == 0) || (p == 1)){
-            //pressKey(p, v);
+            pressKey(p, v);
         } else if (p == 2){
             delay(v);
+        } else if (p == 3){
+            toggleLED(v);
+            updateLEDs();
         }
+    } else if(r == '*'){
+        readKeyPress(3, v);
     } else if (r == '~'){
         readKeyPress(2, v);
     } else if (r == '+'){
@@ -29,6 +69,26 @@ void readKeyPress (int p, int v){
         v += r - '0';
         readKeyPress(p,v);
     }
+}
+
+void btnCheck(int btn){
+  
+}
+
+void toggleLED(int ledNumber){
+  if (ledNumber == 1){
+    led1State = 1 - led1State;
+  } else if (ledNumber == 2){
+    led2State = 1 - led2State;
+  } else if (ledNumber == 3){
+    led3State = 1 - led3State;
+  }
+}
+
+void updateLEDs(){
+  digitalWrite(redLED, led1State);
+  digitalWrite(greenLED, led2State);
+  digitalWrite(blueLED, led3State);
 }
 
 void pressKey(int p, int v){
@@ -283,17 +343,10 @@ void pressKey(int p, int v){
     }
 }
 
-void setup(){
-  Serial.begin(9600);
-  Serial.print("Initializing SD card...");
-  if (!SD.begin(chipSelect)) {
-    Serial.println("initialization failed!");
-    return;
-  }
-  Serial.println("initialization done.");
-
-
-  myFile = SD.open("config.txt");
+void ReadFile(char fileNumber){
+  char fileName[] = "1.txt";
+  fileName[0] = fileNumber;
+  myFile = SD.open(fileName);
   if (myFile) {  
     // read from the file until there's nothing else in it:
     while (go) {
