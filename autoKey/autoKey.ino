@@ -91,9 +91,9 @@ void updateMenu(){
   Serial.println("updateMenu");  
   if(buttonMiddleState){
     buttonMiddleState = 0;
-    Serial.print("*fileNameStrings[menuPosition]: ");
-    Serial.println(*fileNameStrings[menuPosition]);
-    readFile(*fileNameStrings[menuPosition]);
+    Serial.print("fileNameStrings[menuPosition]: ");
+    Serial.println(fileNameStrings[menuPosition]);
+    readFile();
   } else if (buttonTopState){
     buttonTopState = 0;
     debugMenuValues();
@@ -113,13 +113,8 @@ void updateMenu(){
   } 
 }
 
-void readFile(char fileNumber){
-  Serial.println("readFile()");
-  Serial.print("fileNumber: ");
-  Serial.println(fileNumber);
-  char fileName[] = "default.txt";
-  fileName[0] = fileNumber;
-  myFile = SD.open(fileName);
+void readFile(){
+  myFile = SD.open(fileNameStrings[menuPosition]);
   if (myFile) {  
     // read from the file until there's nothing else in it:
     while (go) {
@@ -165,6 +160,7 @@ void debugValues(){
   Serial.println(fileNameStrings[2]);
 }
 
+//p(precursor) tells you what the function is: (*)led, (+)key press, (-)key release, (~)delay, (e)end
 void readKeyPress (int p, int v){
     char r = myFile.read();
     if (r == 'e') {
