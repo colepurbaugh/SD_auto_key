@@ -5,7 +5,7 @@
 * three leds
 
 # Directions
-* create a text file in the root directory of SD card named "config.txt"
+* create a text file in the root directory of SD card
 * each keyboard key has a coresponding number
 * "+" symbol for key press
 * "-" symbol for key release
